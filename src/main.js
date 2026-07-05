@@ -47,6 +47,18 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 viewport.appendChild(renderer.domElement);
 renderer.domElement.addEventListener("wheel", zoomActiveView, { passive: false });
+renderer.domElement.addEventListener("contextmenu", (event) => event.preventDefault());
+renderer.domElement.addEventListener("pointerdown", startRightPan, true);
+renderer.domElement.addEventListener("pointermove", moveRightPan, true);
+renderer.domElement.addEventListener("pointerup", endRightPan, true);
+renderer.domElement.addEventListener("pointercancel", endRightPan, true);
+
+const rightPan = {
+  active: false,
+  pointerId: null,
+  x: 0,
+  y: 0
+};
 
 function makeMaterial(layer) {
   const mat = new THREE.PointsMaterial({
@@ -97,8 +109,9 @@ function makeView(groupName) {
   controls.enabled = false;
   controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
   controls.mouseButtons.MIDDLE = -1;
-  controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
+  controls.mouseButtons.RIGHT = -1;
   controls.noZoom = true;
+  controls.noPan = true;
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0;
   controls.rotateSpeed = 2.2;
@@ -138,6 +151,59 @@ window.addEventListener("resize", resizeActiveView);
 
 function getActiveView() {
   return activeGroup ? views.get(activeGroup) : null;
+}
+
+function startRightPan(event) {
+  if (event.button !== 2 || !getActiveView()) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  rightPan.active = true;
+  rightPan.pointerId = event.pointerId;
+  rightPan.x = event.clientX;
+  rightPan.y = event.clientY;
+  renderer.domElement.setPointerCapture(event.pointerId);
+}
+
+function moveRightPan(event) {
+  if (!rightPan.active || event.pointerId !== rightPan.pointerId) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  const view = getActiveView();
+  if (!view) return;
+
+  const dx = event.clientX - rightPan.x;
+  const dy = event.clientY - rightPan.y;
+  rightPan.x = event.clientX;
+  rightPan.y = event.clientY;
+
+  const distance = view.camera.position.distanceTo(view.controls.target);
+  const visibleHeight = 2 * distance * Math.tan(THREE.MathUtils.degToRad(view.camera.fov * 0.5));
+  const unitsPerPixel = visibleHeight / Math.max(1, renderer.domElement.clientHeight);
+  const right = new THREE.Vector3().setFromMatrixColumn(view.camera.matrix, 0);
+  const up = new THREE.Vector3().setFromMatrixColumn(view.camera.matrix, 1);
+  const pan = right
+    .multiplyScalar(-dx * unitsPerPixel * view.controls.panSpeed)
+    .add(up.multiplyScalar(dy * unitsPerPixel * view.controls.panSpeed));
+
+  view.camera.position.add(pan);
+  view.controls.target.add(pan);
+  view.camera.lookAt(view.controls.target);
+  view.camera.updateMatrixWorld();
+  view.cameraReady = true;
+  syncCameraFromView(view.groupName);
+}
+
+function endRightPan(event) {
+  if (!rightPan.active || event.pointerId !== rightPan.pointerId) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  renderer.domElement.releasePointerCapture(event.pointerId);
+  rightPan.active = false;
+  rightPan.pointerId = null;
 }
 
 function zoomActiveView(event) {
