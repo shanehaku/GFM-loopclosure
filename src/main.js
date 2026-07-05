@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { TrackballControls } from "three/addons/controls/TrackballControls.js";
 import { PLYLoader } from "three/addons/loaders/PLYLoader.js";
 
 const viewer = document.getElementById("viewer");
@@ -88,20 +88,18 @@ function makeView(groupName) {
   const camera = new THREE.PerspectiveCamera(60, 1, 0.00001, 100000);
   camera.position.set(0, -2, 1);
 
-  const controls = new OrbitControls(camera, renderer.domElement);
+  const controls = new TrackballControls(camera, renderer.domElement);
   controls.enabled = false;
   controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
   controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
   controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.rotateSpeed = 0.75;
+  controls.staticMoving = true;
+  controls.dynamicDampingFactor = 0;
+  controls.rotateSpeed = 2.2;
   controls.zoomSpeed = 0.75;
   controls.panSpeed = 0.8;
-  controls.screenSpacePanning = true;
   controls.minDistance = 0.000001;
   controls.maxDistance = Infinity;
-  if ("zoomToCursor" in controls) controls.zoomToCursor = true;
   controls.addEventListener("change", () => syncCameraFromView(groupName));
 
   const light = new THREE.DirectionalLight(0xffffff, 1.0);
