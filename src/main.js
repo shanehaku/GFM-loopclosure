@@ -27,8 +27,12 @@ const SYNCED_CAMERA_GROUPS = new Set(["lg_aligned", "lg_vgicp"]);
 const syncedCameraState = {
   ready: false,
   position: new THREE.Vector3(),
-  quaternion: new THREE.Quaternion(),
-  target: new THREE.Vector3()
+  up: new THREE.Vector3(),
+  target: new THREE.Vector3(),
+  fov: 60,
+  near: 0.00001,
+  far: 100000,
+  zoom: 1
 };
 
 const viewport = document.createElement("section");
@@ -91,7 +95,7 @@ function makeView(groupName) {
   const controls = new TrackballControls(camera, renderer.domElement);
   controls.enabled = false;
   controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
-  controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
+  controls.mouseButtons.MIDDLE = -1;
   controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0;
@@ -141,8 +145,12 @@ function syncCameraFromView(groupName) {
   if (!view || !view.cameraReady) return;
 
   syncedCameraState.position.copy(view.camera.position);
-  syncedCameraState.quaternion.copy(view.camera.quaternion);
+  syncedCameraState.up.copy(view.camera.up);
   syncedCameraState.target.copy(view.controls.target);
+  syncedCameraState.fov = view.camera.fov;
+  syncedCameraState.near = view.camera.near;
+  syncedCameraState.far = view.camera.far;
+  syncedCameraState.zoom = view.camera.zoom;
   syncedCameraState.ready = true;
 }
 
@@ -150,7 +158,11 @@ function applySyncedCameraToView(view) {
   if (!SYNCED_CAMERA_GROUPS.has(view.groupName) || !syncedCameraState.ready) return;
 
   view.camera.position.copy(syncedCameraState.position);
-  view.camera.quaternion.copy(syncedCameraState.quaternion);
+  view.camera.up.copy(syncedCameraState.up);
+  view.camera.fov = syncedCameraState.fov;
+  view.camera.near = syncedCameraState.near;
+  view.camera.far = syncedCameraState.far;
+  view.camera.zoom = syncedCameraState.zoom;
   view.controls.target.copy(syncedCameraState.target);
   view.camera.updateProjectionMatrix();
   view.controls.update();
