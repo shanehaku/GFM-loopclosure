@@ -46,6 +46,7 @@ viewport.appendChild(viewportTitle);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 viewport.appendChild(renderer.domElement);
+renderer.domElement.addEventListener("wheel", zoomActiveView, { passive: false });
 
 function makeMaterial(layer) {
   const mat = new THREE.PointsMaterial({
@@ -97,6 +98,7 @@ function makeView(groupName) {
   controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
   controls.mouseButtons.MIDDLE = -1;
   controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
+  controls.noZoom = true;
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0;
   controls.rotateSpeed = 2.2;
@@ -136,6 +138,27 @@ window.addEventListener("resize", resizeActiveView);
 
 function getActiveView() {
   return activeGroup ? views.get(activeGroup) : null;
+}
+
+function zoomActiveView(event) {
+  const view = getActiveView();
+  if (!view) return;
+
+  event.preventDefault();
+  const deltaScale = event.deltaMode === 1 ? 0.03 : event.deltaMode === 2 ? 0.6 : 0.0015;
+  const factor = Math.exp(event.deltaY * deltaScale);
+  const eye = view.camera.position.clone().sub(view.controls.target);
+  const distance = THREE.MathUtils.clamp(
+    eye.length() * factor,
+    view.controls.minDistance,
+    view.controls.maxDistance
+  );
+
+  view.camera.position.copy(view.controls.target).add(eye.setLength(distance));
+  view.camera.updateProjectionMatrix();
+  view.controls.update();
+  view.cameraReady = true;
+  syncCameraFromView(view.groupName);
 }
 
 function syncCameraFromView(groupName) {
