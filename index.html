@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -18,9 +18,20 @@
   <aside id="panel">
     <h1>LoGeR Partial Align Viewer</h1>
     <p class="hint">
-      Select one alignment group, then use mouse drag / wheel / right-drag in the viewer to rotate, zoom, and pan.
+      Select one alignment group, then use left-drag / wheel / right-drag in the viewer to rotate, zoom, and pan.
       Each group keeps its own camera.
     </p>
+
+    <div class="note">
+      <strong>Filtering note</strong>
+      <p>
+        Except for the Original group, point clouds and matching lines are filtered by LightGlue confidence and
+        normal-consistency checks before visualization.
+      </p>
+      <p>
+        Interaction is tuned to be closer to CloudCompare / viser, but browser controls may still feel different.
+      </p>
+    </div>
 
     <div id="status">Loading manifest...</div>
 

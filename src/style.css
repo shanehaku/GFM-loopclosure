@@ -82,6 +82,27 @@ h2 {
   line-height: 1.4;
 }
 
+.note {
+  margin: 10px 0 12px;
+  padding: 10px;
+  border: 1px solid #3f4f59;
+  border-radius: 6px;
+  background: rgba(35, 45, 50, 0.72);
+  color: #d7e4e8;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.note strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.note p {
+  margin: 5px 0 0;
+}
+
 .section {
   margin: 12px 0;
 }
