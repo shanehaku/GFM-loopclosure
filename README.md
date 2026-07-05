@@ -1,17 +1,24 @@
-# LoGeR Partial Align GitHub Pages Viewer
+# LoGeR Partial Align Viewer
 
-This is a static Three.js viewer for LoGeR window-pair debug PLY files.
+Your site is live at https://shanehaku.github.io/GFM-loopclosure/
 
-It shows one display viewport with a left-side switcher for three groups:
+Open the viewer:
+
+https://shanehaku.github.io/GFM-loopclosure/
+
+This is a static Three.js viewer for LoGeR window-pair debug PLY files. It is meant for sharing alignment results in a browser without requiring CloudCompare or a local 3D tool.
+
+## Viewer Contents
+
+The page provides one 3D viewport with a left-side switcher for three groups:
 
 1. `Original`: point cloud A + point cloud B
 2. `LG aligned`: point cloud A + point cloud B after LightGlue + inlier/all matching line samples
 3. `LG + VGICP`: point cloud A + point cloud B after LightGlue+VGICP + inlier/all matching line samples
 
-Each group keeps its own camera, and each sub-item in the active group can be toggled independently.
-PLY coordinates are rendered as-is, so relative placement should match CloudCompare.
+Each group keeps its own camera, and each sub-item in the active group can be toggled independently. PLY coordinates are rendered as-is, so relative placement should match CloudCompare.
 
-## 1. Put files into the expected folders
+## Displayed Assets
 
 ```text
 assets/
@@ -30,59 +37,23 @@ assets/
     └── lightglue_matching_lines_all.ply    # optional/debug all matches
 ```
 
-Edit `manifest.json` if your filenames differ.
+The inlier matching-line layers are enabled by default. The `*_all.ply` debug layers are listed in the viewer but start disabled, so they can be toggled on only when needed.
 
-## 2. Local test
+## Local Preview
 
 Do not open `index.html` with `file://`. Use a local server:
 
 ```bash
-cd loger_github_pages_ply_viewer
 python3 -m http.server 8000
 ```
 
-Open:
+Then open:
 
 ```text
 http://localhost:8000
 ```
 
-## 3. Deploy to GitHub Pages
+## Notes
 
-```bash
-git init
-git add .
-git commit -m "Add LoGeR PLY viewer"
-git branch -M main
-git remote add origin https://github.com/<USER>/<REPO>.git
-git push -u origin main
-```
-
-Then in GitHub:
-
-```text
-Settings → Pages → Build and deployment → Deploy from branch → main / root
-```
-
-Your page will be:
-
-```text
-https://<USER>.github.io/<REPO>/
-```
-
-## 4. Large file checks
-
-GitHub repositories reject files over 100 MiB. Check before push:
-
-```bash
-find . -type f -printf "%s %p\n" | sort -nr | head -20
-du -sh .
-```
-
-If a file is close to 100 MiB, downsample it or use external storage.
-
-## 5. Notes
-
-- Matching lines should be exported as `line_samples.ply`, i.e. many colored points along the line. This viewer renders every PLY as points.
-- If you need true line segments later, export matching lines as JSON pairs and add a `LineSegments` loader.
+- Matching lines are exported as dense point samples along each line, and this viewer renders every PLY as points.
 - For very large full-scene point clouds, use Potree instead.
