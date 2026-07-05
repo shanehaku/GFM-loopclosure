@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LoGeR Partial Align Viewer</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.166.1/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.166.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <aside id="panel">
+    <h1>LoGeR Partial Align Viewer</h1>
+    <p class="hint">
+      Select one alignment group, then use mouse drag / wheel / right-drag in the viewer to rotate, zoom, and pan.
+      Each group keeps its own camera.
+    </p>
+
+    <div id="status">Loading manifest...</div>
+
+    <div class="section">
+      <div id="groupSwitch" class="groupSwitch" aria-label="Alignment group"></div>
+    </div>
+
+    <div class="section">
+      <button id="showAll">Current on</button>
+      <button id="hideAll">Current off</button>
+      <button id="resetCamera">Reset camera</button>
+    </div>
+
+    <div class="section">
+      <label>Point size
+        <input id="pointSize" type="range" min="0.0002" max="0.03" step="0.0002" value="0.006">
+      </label>
+      <span id="pointSizeValue">0.0060</span>
+    </div>
+
+    <div class="section">
+      <label>Line size
+        <input id="lineSize" type="range" min="0.0002" max="0.06" step="0.0002" value="0.0002">
+      </label>
+      <span id="lineSizeValue">0.0002</span>
+    </div>
+
+    <div id="layerList"></div>
+  </aside>
+
+  <main id="viewer"></main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

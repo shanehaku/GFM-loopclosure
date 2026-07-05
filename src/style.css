@@ -1,0 +1,170 @@
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #111;
+  color: #ddd;
+}
+
+#panel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 330px;
+  height: 100vh;
+  overflow-y: auto;
+  background: rgba(18, 18, 18, 0.96);
+  border-right: 1px solid #333;
+  padding: 14px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+#viewer {
+  position: absolute;
+  left: 330px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #111;
+}
+
+.viewport canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.viewportTitle {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 2;
+  max-width: calc(100% - 16px);
+  padding: 5px 7px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.25;
+  pointer-events: none;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+
+h2 {
+  font-size: 15px;
+  margin: 16px 0 6px;
+  color: #fff;
+}
+
+.hint {
+  color: #aaa;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.section {
+  margin: 12px 0;
+}
+
+.groupSwitch {
+  display: grid;
+  gap: 6px;
+}
+
+button {
+  background: #2f5f96;
+  color: white;
+  border: 0;
+  padding: 6px 9px;
+  margin: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3e75b7;
+}
+
+.groupSwitch button {
+  width: 100%;
+  text-align: left;
+  line-height: 1.25;
+}
+
+.groupSwitch button.active {
+  background: #2f9666;
+}
+
+.group {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+}
+
+.layer {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: start;
+  gap: 6px;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.layer small {
+  display: block;
+  color: #888;
+  font-size: 11px;
+  margin-top: 2px;
+  word-break: break-all;
+}
+
+#status {
+  font-size: 12px;
+  color: #9fd;
+  white-space: pre-wrap;
+  margin: 8px 0;
+}
+
+input[type="range"] {
+  width: 180px;
+}
+
+@media (max-width: 760px) {
+  html, body {
+    overflow: auto;
+  }
+
+  #panel {
+    position: static;
+    width: auto;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid #333;
+  }
+
+  #viewer {
+    position: static;
+    height: 72vh;
+    min-height: 520px;
+  }
+}

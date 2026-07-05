@@ -1,0 +1,88 @@
+{
+  "layers": [
+    {
+      "id": "orig_a",
+      "group": "original",
+      "label": "A target original",
+      "path": "./assets/original/window_A_original_position_rgb.ply",
+      "visible": true,
+      "pointSize": 0.008
+    },
+    {
+      "id": "orig_b",
+      "group": "original",
+      "label": "B source original",
+      "path": "./assets/original/window_B_original_position_rgb.ply",
+      "visible": true,
+      "pointSize": 0.008
+    },
+    {
+      "id": "lg_a",
+      "group": "lg_aligned",
+      "label": "A target",
+      "path": "./assets/lg_aligned/window_A_lightglue_target_rgb.ply",
+      "visible": true,
+      "pointSize": 0.008
+    },
+    {
+      "id": "lg_b",
+      "group": "lg_aligned",
+      "label": "B after LightGlue",
+      "path": "./assets/lg_aligned/window_B_after_lightglue_rgb.ply",
+      "visible": true,
+      "pointSize": 0.008
+    },
+    {
+      "id": "lg_lines",
+      "group": "lg_aligned",
+      "label": "LightGlue matching lines - only inliers",
+      "path": "./assets/lg_aligned/lightglue_matching_lines.ply",
+      "visible": true,
+      "pointSize": 0.015,
+      "color": "#00ff66"
+    },
+    {
+      "id": "lg_lines_all",
+      "group": "lg_aligned",
+      "label": "LightGlue matching lines - all matches",
+      "path": "./assets/lg_aligned/lightglue_matching_lines_all.ply",
+      "visible": false,
+      "pointSize": 0.015,
+      "color": "#ffaa00"
+    },
+    {
+      "id": "vgicp_a",
+      "group": "lg_vgicp",
+      "label": "A target",
+      "path": "./assets/lg_vgicp/window_A_lightglue_vgicp_refine_target_rgb.ply",
+      "visible": true,
+      "pointSize": 0.008
+    },
+    {
+      "id": "vgicp_b",
+      "group": "lg_vgicp",
+      "label": "B after LightGlue + VGICP",
+      "path": "./assets/lg_vgicp/window_B_after_lightglue_vgicp_refine_rgb.ply",
+      "visible": true,
+      "pointSize": 0.008
+    },
+    {
+      "id": "vgicp_lines",
+      "group": "lg_vgicp",
+      "label": "LightGlue matching lines - only inliers",
+      "path": "./assets/lg_vgicp/lightglue_matching_lines.ply",
+      "visible": true,
+      "pointSize": 0.015,
+      "color": "#00ff66"
+    },
+    {
+      "id": "vgicp_lines_all",
+      "group": "lg_vgicp",
+      "label": "LightGlue matching lines - all matches",
+      "path": "./assets/lg_vgicp/lightglue_matching_lines_all.ply",
+      "visible": false,
+      "pointSize": 0.015,
+      "color": "#ffaa00"
+    }
+  ]
+}
