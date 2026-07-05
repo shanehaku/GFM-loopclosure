@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LoGeR Partial Align Viewer</title>
-  <link rel="stylesheet" href="./src/style.css" />
+  <link rel="stylesheet" href="./src/style.css?v=controls-v3" />
   <script type="importmap">
   {
     "imports": {
@@ -18,7 +18,7 @@
   <aside id="panel">
     <h1>LoGeR Partial Align Viewer</h1>
     <p class="hint">
-      Select one alignment group, then use left-drag / wheel / right-drag in the viewer to rotate, zoom, and pan.
+      Select one alignment group, then use left-drag to rotate, wheel to zoom, and middle/right-drag to pan.
       Each group keeps its own camera.
     </p>
 
@@ -30,6 +30,7 @@
       </p>
       <p>
         Interaction is tuned to be closer to CloudCompare / viser, but browser controls may still feel different.
+        LG aligned and LG + VGICP share the same camera for direct comparison.
       </p>
     </div>
 
@@ -64,6 +65,6 @@
 
   <main id="viewer"></main>
 
-  <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/main.js?v=controls-v3"></script>
 </body>
 </html>

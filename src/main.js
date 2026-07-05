@@ -23,6 +23,13 @@ const GROUP_LABELS = {
   "lg_aligned": "LG aligned: A + B + matching lines",
   "lg_vgicp": "LG + VGICP: A + B + matching lines"
 };
+const SYNCED_CAMERA_GROUPS = new Set(["lg_aligned", "lg_vgicp"]);
+const syncedCameraState = {
+  ready: false,
+  position: new THREE.Vector3(),
+  quaternion: new THREE.Quaternion(),
+  target: new THREE.Vector3()
+};
 
 const viewport = document.createElement("section");
 viewport.className = "viewport";
@@ -84,7 +91,7 @@ function makeView(groupName) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enabled = false;
   controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
-  controls.mouseButtons.MIDDLE = THREE.MOUSE.DOLLY;
+  controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
   controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
@@ -95,6 +102,7 @@ function makeView(groupName) {
   controls.minDistance = 0.000001;
   controls.maxDistance = Infinity;
   if ("zoomToCursor" in controls) controls.zoomToCursor = true;
+  controls.addEventListener("change", () => syncCameraFromView(groupName));
 
   const light = new THREE.DirectionalLight(0xffffff, 1.0);
   light.position.set(1, -1, 2);
@@ -128,6 +136,29 @@ function getActiveView() {
   return activeGroup ? views.get(activeGroup) : null;
 }
 
+function syncCameraFromView(groupName) {
+  if (!SYNCED_CAMERA_GROUPS.has(groupName)) return;
+
+  const view = views.get(groupName);
+  if (!view || !view.cameraReady) return;
+
+  syncedCameraState.position.copy(view.camera.position);
+  syncedCameraState.quaternion.copy(view.camera.quaternion);
+  syncedCameraState.target.copy(view.controls.target);
+  syncedCameraState.ready = true;
+}
+
+function applySyncedCameraToView(view) {
+  if (!SYNCED_CAMERA_GROUPS.has(view.groupName) || !syncedCameraState.ready) return;
+
+  view.camera.position.copy(syncedCameraState.position);
+  view.camera.quaternion.copy(syncedCameraState.quaternion);
+  view.controls.target.copy(syncedCameraState.target);
+  view.camera.updateProjectionMatrix();
+  view.controls.update();
+  view.cameraReady = true;
+}
+
 function setActiveGroup(groupName) {
   if (!views.has(groupName)) return;
   activeGroup = groupName;
@@ -135,6 +166,7 @@ function setActiveGroup(groupName) {
 
   for (const view of views.values()) view.controls.enabled = false;
   const view = views.get(groupName);
+  applySyncedCameraToView(view);
   view.controls.enabled = true;
   if (!view.cameraReady) resetCamera(view);
 
@@ -256,6 +288,7 @@ function resetCamera(view = getActiveView()) {
   view.camera.updateProjectionMatrix();
   view.controls.update();
   view.cameraReady = true;
+  syncCameraFromView(view.groupName);
 }
 
 function setActiveLayerVisibility(visible) {
