@@ -2,6 +2,8 @@
 
 GitHub Pages static viewer for whole-map comparison only.
 
+link: https://shanehaku.github.io/GFM-loopclosure/
+
 Open `index.html`, then enter `maps/whole_map/`.
 
 Groups:
