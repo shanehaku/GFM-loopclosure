@@ -8,11 +8,15 @@ html, body {
   color: #ddd;
 }
 
+a {
+  color: inherit;
+}
+
 #panel {
   position: fixed;
   left: 0;
   top: 0;
-  width: 330px;
+  width: 340px;
   height: 100vh;
   overflow-y: auto;
   background: rgba(18, 18, 18, 0.96);
@@ -24,7 +28,7 @@ html, body {
 
 #viewer {
   position: absolute;
-  left: 330px;
+  left: 340px;
   top: 0;
   right: 0;
   bottom: 0;
@@ -103,6 +107,34 @@ h2 {
   margin: 5px 0 0;
 }
 
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+  padding: 7px 10px;
+  border: 1px solid #b46b2f;
+  border-radius: 4px;
+  background: rgba(103, 55, 24, 0.52);
+  color: #ffd1a3;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.backLink::before {
+  content: "↩";
+  font-size: 18px;
+  line-height: 1;
+}
+
+.backLink:hover {
+  border-color: #df8a43;
+  background: rgba(132, 71, 31, 0.72);
+  color: #ffe0c2;
+}
+
 .section {
   margin: 12px 0;
 }
@@ -110,6 +142,17 @@ h2 {
 .groupSwitch {
   display: grid;
   gap: 6px;
+}
+
+.groupSwitchSection {
+  display: grid;
+  gap: 5px;
+  padding-left: 12px;
+  border-left: 1px solid #444;
+}
+
+.groupSwitchSection[hidden] {
+  display: none;
 }
 
 button {
@@ -130,6 +173,11 @@ button:hover {
   width: 100%;
   text-align: left;
   line-height: 1.25;
+}
+
+.groupSwitch button.groupSectionButton {
+  background: #3b3b3b;
+  font-weight: 700;
 }
 
 .groupSwitch button.active {
@@ -159,6 +207,29 @@ button:hover {
   word-break: break-all;
 }
 
+.frameColorbar {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+  text-align: center;
+}
+
+.frameColorbar[hidden] {
+  display: none;
+}
+
+.frameColorbar img {
+  display: block;
+  width: min(190px, 72%);
+  max-height: min(300px, 32vh);
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: #111;
+}
+
 #status {
   font-size: 12px;
   color: #9fd;
@@ -168,6 +239,130 @@ button:hover {
 
 input[type="range"] {
   width: 180px;
+}
+
+.home {
+  min-height: 100%;
+  overflow: auto;
+}
+
+.homeShell {
+  width: min(1040px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 56px;
+}
+
+.homeHeader {
+  padding-bottom: 18px;
+  border-bottom: 1px solid #333;
+}
+
+.homeHeader h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.homeHeader p,
+.homeSection p {
+  color: #aaa;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.homeSection {
+  margin-top: 24px;
+}
+
+.homeSection h2 {
+  font-size: 22px;
+}
+
+.sceneGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.sceneGrid a {
+  display: block;
+  padding: 20px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #e7eef0;
+  text-decoration: none;
+}
+
+.sceneGrid a:hover {
+  border-color: #5c8dbd;
+  background: #202a32;
+}
+
+.cardSublist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  color: #c7d1d5;
+}
+
+.cardSublist span {
+  display: inline-block;
+  padding: 7px 10px;
+  border: 1px solid rgba(217, 242, 255, 0.42);
+  border-radius: 999px;
+  background: rgba(217, 242, 255, 0.08);
+  color: #e4f6ff;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.sceneGrid a.priority {
+  border-color: #a98333;
+  color: #ffe3a4;
+}
+
+.sceneGrid a.scalePriority {
+  border-color: #d6a63e;
+  background: #282111;
+  box-shadow: inset 3px 0 0 #d6a63e;
+}
+
+.sceneGrid a.mapPriority {
+  border-color: #61a0c7;
+  background: #14232c;
+  box-shadow: inset 3px 0 0 #61a0c7;
+  color: #d9f2ff;
+}
+
+.cardTitle {
+  display: block;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 750;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 10px;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.compact {
+  max-width: 640px;
 }
 
 @media (max-width: 760px) {

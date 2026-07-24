@@ -6,24 +6,30 @@ const viewer = document.getElementById("viewer");
 const statusEl = document.getElementById("status");
 const groupSwitchEl = document.getElementById("groupSwitch");
 const layerListEl = document.getElementById("layerList");
+const pageTitleEl = document.getElementById("pageTitle");
+const pageHintEl = document.getElementById("pageHint");
+const sceneNotesEl = document.getElementById("sceneNotes");
+const originalFrameColorbarEl = document.getElementById("originalFrameColorbar");
 
 const loader = new PLYLoader();
 const layers = new Map();
 const views = new Map();
+const layersByGroup = new Map();
+const loadedGroups = new Set();
+const loadingGroups = new Map();
 
 let activeGroup = null;
 let globalPointSize = 0.006;
-let globalLinePointSize = 0.0002;
+let globalLinePointSize = 0.04;
+let groupOrder = [];
+let groupLabels = {};
+let groupSections = [];
+let activeSection = null;
+let syncedCameraGroups = new Set();
+
 const DEFAULT_POINT_SIZE = 0.008;
 const DEFAULT_LINE_POINT_SIZE = 0.015;
 
-const GROUP_ORDER = ["original", "lg_aligned", "lg_vgicp"];
-const GROUP_LABELS = {
-  "original": "Original: A + B",
-  "lg_aligned": "LG aligned: A + B + matching lines",
-  "lg_vgicp": "LG + VGICP: A + B + matching lines"
-};
-const SYNCED_CAMERA_GROUPS = new Set(["lg_aligned", "lg_vgicp"]);
 const syncedCameraState = {
   ready: false,
   position: new THREE.Vector3(),
@@ -85,8 +91,9 @@ function effectivePointSize(layer) {
 }
 
 function isLineLayer(layer) {
+  if (layer.kind === "line") return true;
   const text = `${layer.id ?? ""} ${layer.label ?? ""} ${layer.path ?? ""}`.toLowerCase();
-  return text.includes("line");
+  return text.includes("line") || text.includes("match");
 }
 
 function updateMaterialPointSizes() {
@@ -228,7 +235,7 @@ function zoomActiveView(event) {
 }
 
 function syncCameraFromView(groupName) {
-  if (!SYNCED_CAMERA_GROUPS.has(groupName)) return;
+  if (!syncedCameraGroups.has(groupName)) return;
 
   const view = views.get(groupName);
   if (!view || !view.cameraReady) return;
@@ -244,7 +251,7 @@ function syncCameraFromView(groupName) {
 }
 
 function applySyncedCameraToView(view) {
-  if (!SYNCED_CAMERA_GROUPS.has(view.groupName) || !syncedCameraState.ready) return;
+  if (!syncedCameraGroups.has(view.groupName) || !syncedCameraState.ready) return;
 
   view.camera.position.copy(syncedCameraState.position);
   view.camera.up.copy(syncedCameraState.up);
@@ -258,10 +265,24 @@ function applySyncedCameraToView(view) {
   view.cameraReady = true;
 }
 
-function setActiveGroup(groupName) {
+function setActiveSection(sectionId) {
+  activeSection = sectionId;
+
+  groupSwitchEl.querySelectorAll("button[data-section]").forEach((button) => {
+    const active = button.dataset.section === sectionId;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  groupSwitchEl.querySelectorAll(".groupSwitchSection").forEach((section) => {
+    section.hidden = section.dataset.section !== sectionId;
+  });
+}
+
+async function setActiveGroup(groupName) {
   if (!views.has(groupName)) return;
   activeGroup = groupName;
-  viewportTitle.textContent = GROUP_LABELS[groupName] ?? groupName;
+  viewportTitle.textContent = groupLabels[groupName] ?? groupName;
 
   for (const view of views.values()) view.controls.enabled = false;
   const view = views.get(groupName);
@@ -280,6 +301,13 @@ function setActiveGroup(groupName) {
   });
 
   resizeActiveView();
+  await ensureGroupLoaded(groupName);
+  if (activeGroup !== groupName) return;
+
+  applySyncedCameraToView(view);
+  view.controls.enabled = true;
+  if (!view.cameraReady) resetCamera(view);
+  resizeActiveView();
 }
 
 async function loadLayer(layer) {
@@ -289,11 +317,11 @@ async function loadLayer(layer) {
       (geometry) => {
         geometry.computeBoundingBox();
 
-        // PLYLoader may output normals/faces, but this viewer treats every PLY as a point layer.
         const mat = makeMaterial(layer);
         const points = new THREE.Points(geometry, mat);
         points.name = layer.id;
-        points.visible = layer.visible ?? true;
+        const checkbox = layerListEl.querySelector(`input[data-layer="${CSS.escape(layer.id)}"]`);
+        points.visible = checkbox ? checkbox.checked : layer.visible ?? true;
 
         const view = makeView(layer.group);
         view.group.add(points);
@@ -308,44 +336,150 @@ async function loadLayer(layer) {
   });
 }
 
+async function ensureGroupLoaded(groupName) {
+  if (loadedGroups.has(groupName)) return;
+  if (loadingGroups.has(groupName)) return loadingGroups.get(groupName);
+
+  const groupLayers = layersByGroup.get(groupName) ?? [];
+  const promise = (async () => {
+    let loaded = 0;
+    statusEl.textContent = `Loading ${groupLabels[groupName] ?? groupName} (${groupLayers.length} layers)...`;
+
+    for (const layer of groupLayers) {
+      if (layers.has(layer.id)) {
+        loaded += 1;
+        continue;
+      }
+
+      try {
+        await loadLayer(layer);
+        loaded += 1;
+        statusEl.textContent = `Loaded ${loaded}/${groupLayers.length}: ${layer.label}`;
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent += `\nFAILED: ${layer.label} (${layer.path})`;
+      }
+    }
+
+    loadedGroups.add(groupName);
+    resetCamera(views.get(groupName));
+    statusEl.textContent += `\nDone: ${groupLabels[groupName] ?? groupName}.`;
+  })();
+
+  loadingGroups.set(groupName, promise);
+  try {
+    await promise;
+  } finally {
+    loadingGroups.delete(groupName);
+  }
+}
+
+function applyManifestText(manifest) {
+  if (manifest.title) {
+    document.title = manifest.title;
+    if (pageTitleEl) pageTitleEl.textContent = manifest.title;
+  }
+  if (manifest.description && pageHintEl) pageHintEl.textContent = manifest.description;
+  if (sceneNotesEl && Array.isArray(manifest.notes)) {
+    sceneNotesEl.innerHTML = [
+      "<strong>Notes</strong>",
+      ...manifest.notes.map((note) => `<p>${escapeHtml(note)}</p>`)
+    ].join("");
+    sceneNotesEl.hidden = manifest.notes.length === 0;
+  }
+}
+
 function createControls(manifest) {
   groupSwitchEl.innerHTML = "";
   layerListEl.innerHTML = "";
+  const requestedSection = new URLSearchParams(window.location.search).get("section");
 
   const byGroup = {};
   for (const layer of manifest.layers) {
     byGroup[layer.group] ??= [];
     byGroup[layer.group].push(layer);
   }
+  layersByGroup.clear();
 
-  const orderedGroups = [
-    ...GROUP_ORDER.filter((name) => byGroup[name]),
-    ...Object.keys(byGroup).filter((name) => !GROUP_ORDER.includes(name))
+  const requestedSectionConfig = groupSections.find((section) => {
+    return section.title.toLowerCase() === (requestedSection ?? "").toLowerCase();
+  });
+  const originalOnly = requestedSectionConfig?.title === "Original";
+  layerListEl.hidden = originalOnly;
+  if (originalFrameColorbarEl) originalFrameColorbarEl.hidden = !originalOnly;
+
+  const allOrderedGroups = [
+    ...groupOrder.filter((name) => byGroup[name]),
+    ...Object.keys(byGroup).filter((name) => !groupOrder.includes(name))
   ];
+  const orderedGroups = requestedSectionConfig
+    ? requestedSectionConfig.groups.filter((name) => byGroup[name])
+    : allOrderedGroups;
+
+  const sectionByGroup = new Map();
+  const sectionIds = new Map();
+  groupSections.forEach((section, index) => {
+    const sectionId = `section_${index}`;
+    sectionIds.set(section.title, sectionId);
+    for (const groupName of section.groups ?? []) sectionByGroup.set(groupName, sectionId);
+  });
+
+  for (const section of requestedSectionConfig ? [] : groupSections) {
+    const sectionId = sectionIds.get(section.title);
+    const sectionButton = document.createElement("button");
+    sectionButton.type = "button";
+    sectionButton.className = "groupSectionButton";
+    sectionButton.dataset.section = sectionId;
+    sectionButton.setAttribute("aria-pressed", "false");
+    sectionButton.textContent = section.title;
+    sectionButton.addEventListener("click", () => {
+      setActiveSection(sectionId);
+      const firstGroup = section.groups.find((name) => byGroup[name]);
+      if (firstGroup) setActiveGroup(firstGroup);
+    });
+    groupSwitchEl.appendChild(sectionButton);
+  }
+
+  const sectionContainers = new Map();
 
   for (const groupName of orderedGroups) {
     makeView(groupName);
+    layersByGroup.set(groupName, byGroup[groupName]);
+
+    const sectionId = requestedSectionConfig ? null : sectionByGroup.get(groupName);
+    let switchParent = groupSwitchEl;
+    if (sectionId) {
+      if (!sectionContainers.has(sectionId)) {
+        const section = document.createElement("div");
+        section.className = "groupSwitchSection";
+        section.dataset.section = sectionId;
+        section.hidden = true;
+        groupSwitchEl.appendChild(section);
+        sectionContainers.set(sectionId, section);
+      }
+      switchParent = sectionContainers.get(sectionId);
+    }
 
     const button = document.createElement("button");
     button.type = "button";
     button.dataset.group = groupName;
     button.setAttribute("aria-pressed", "false");
-    button.textContent = GROUP_LABELS[groupName] ?? groupName;
+    button.textContent = groupLabels[groupName] ?? groupName;
     button.addEventListener("click", () => setActiveGroup(groupName));
-    groupSwitchEl.appendChild(button);
+    switchParent.appendChild(button);
 
     const div = document.createElement("div");
     div.className = "group";
     div.dataset.group = groupName;
     div.hidden = true;
-    div.innerHTML = `<h2>${GROUP_LABELS[groupName] ?? groupName}</h2>`;
+    div.innerHTML = `<h2>${escapeHtml(groupLabels[groupName] ?? groupName)}</h2>`;
 
     for (const layer of byGroup[groupName]) {
       const row = document.createElement("label");
       row.className = "layer";
       row.innerHTML = `
-        <input type="checkbox" ${layer.visible === false ? "" : "checked"} data-layer="${layer.id}">
-        <span>${layer.label}<small>${layer.path}</small></span>
+        <input type="checkbox" ${layer.visible === false ? "" : "checked"} data-layer="${escapeHtml(layer.id)}">
+        <span>${escapeHtml(layer.label)}<small>${escapeHtml(layer.path)}</small></span>
       `;
       div.appendChild(row);
     }
@@ -360,7 +494,10 @@ function createControls(manifest) {
     });
   });
 
-  setActiveGroup(orderedGroups[0]);
+  const initialGroup = orderedGroups[0];
+  const initialSection = sectionByGroup.get(initialGroup);
+  if (initialSection && !requestedSectionConfig) setActiveSection(initialSection);
+  setActiveGroup(initialGroup);
 }
 
 function resetCamera(view = getActiveView()) {
@@ -403,27 +540,27 @@ function setActiveLayerVisibility(visible) {
 }
 
 async function init() {
-  const res = await fetch("./manifest.json", { cache: "no-store" });
+  const manifestPath = document.body.dataset.manifest || "./manifest.json";
+  const res = await fetch(manifestPath, { cache: "no-store" });
   const manifest = await res.json();
 
-  statusEl.textContent = `Loading ${manifest.layers.length} layers...`;
+  if (!Array.isArray(manifest.layers)) throw new Error("manifest.layers must be an array");
+  groupOrder = manifest.groupOrder ?? [];
+  groupLabels = manifest.groupLabels ?? {};
+  groupSections = manifest.groupSections ?? [];
+  syncedCameraGroups = new Set(manifest.syncedCameraGroups ?? []);
+  applyManifestText(manifest);
+
+  statusEl.textContent = `Ready. Select a map to load.`;
   createControls(manifest);
+}
 
-  let loaded = 0;
-  for (const layer of manifest.layers) {
-    try {
-      await loadLayer(layer);
-      loaded += 1;
-      statusEl.textContent = `Loaded ${loaded}/${manifest.layers.length}: ${layer.label}`;
-    } catch (err) {
-      console.error(err);
-      statusEl.textContent += `\nFAILED: ${layer.label} (${layer.path})`;
-    }
-  }
-
-  for (const view of views.values()) resetCamera(view);
-  setActiveGroup(activeGroup ?? GROUP_ORDER[0]);
-  statusEl.textContent += "\nDone.";
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 document.getElementById("showAll").addEventListener("click", () => setActiveLayerVisibility(true));

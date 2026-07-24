@@ -1,0 +1,60 @@
+{
+  "title": "Whole Map Viewer",
+  "description": "Compare original, no-loop-closure, Sim3 graph, two-node submap, and structure deformation whole maps. Each selected map loads six window PLY layers and overlays them in one view.",
+  "notes": [
+    "Each whole-map group loads window 0 through window 5 as overlaid layers.",
+    "All groups share camera state for direct switching comparison.",
+    "Original and no-loop-closure groups include trajectory line layers."
+  ],
+  "groupOrder": ["original", "no_loop_closure", "sim3_graph", "two_node_submap", "structure_deformation"],
+  "groupSections": [
+    {"title": "Original", "groups": ["original", "no_loop_closure"]},
+    {"title": "Optimized", "groups": ["sim3_graph", "two_node_submap", "structure_deformation"]}
+  ],
+  "groupLabels": {
+    "original": "original",
+    "no_loop_closure": "no loop closure",
+    "sim3_graph": "Sim3 Graph",
+    "two_node_submap": "2node submap",
+    "structure_deformation": "structure deformation"
+  },
+  "syncedCameraGroups": ["original", "no_loop_closure", "sim3_graph", "two_node_submap", "structure_deformation"],
+  "layers": [
+    {"id": "original_window_0", "group": "original", "label": "original window 0", "path": "./assets/original/window_0_original_localmap_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "original_window_1", "group": "original", "label": "original window 1", "path": "./assets/original/window_1_original_localmap_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "original_window_2", "group": "original", "label": "original window 2", "path": "./assets/original/window_2_original_localmap_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "original_window_3", "group": "original", "label": "original window 3", "path": "./assets/original/window_3_original_localmap_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "original_window_4", "group": "original", "label": "original window 4", "path": "./assets/original/window_4_original_localmap_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "original_window_5", "group": "original", "label": "original window 5", "path": "./assets/original/window_5_original_localmap_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "original_raw_loger_trajectory_lines", "group": "original", "label": "raw loger trajectory lines", "path": "./assets/original_trajectories/raw_loger_trajectory_viser_color_lines.ply", "visible": true, "pointSize": 0.015, "kind": "line"},
+
+    {"id": "no_loop_closure_window_0", "group": "no_loop_closure", "label": "no loop closure window 0", "path": "./assets/no_loop_closure/window_0_no_loop_closure_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "no_loop_closure_window_1", "group": "no_loop_closure", "label": "no loop closure window 1", "path": "./assets/no_loop_closure/window_1_no_loop_closure_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "no_loop_closure_window_2", "group": "no_loop_closure", "label": "no loop closure window 2", "path": "./assets/no_loop_closure/window_2_no_loop_closure_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "no_loop_closure_window_3", "group": "no_loop_closure", "label": "no loop closure window 3", "path": "./assets/no_loop_closure/window_3_no_loop_closure_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "no_loop_closure_window_4", "group": "no_loop_closure", "label": "no loop closure window 4", "path": "./assets/no_loop_closure/window_4_no_loop_closure_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "no_loop_closure_window_5", "group": "no_loop_closure", "label": "no loop closure window 5", "path": "./assets/no_loop_closure/window_5_no_loop_closure_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "no_loop_closure_adjacent_chain_trajectory_lines", "group": "no_loop_closure", "label": "adjacent chain trajectory lines", "path": "./assets/original_trajectories/adjacent_chain_stitched_trajectory_viser_color_lines.ply", "visible": true, "pointSize": 0.015, "kind": "line"},
+
+    {"id": "sim3_graph_window_0", "group": "sim3_graph", "label": "Sim3 Graph window 0", "path": "./assets/sim3_graph/window_0_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "sim3_graph_window_1", "group": "sim3_graph", "label": "Sim3 Graph window 1", "path": "./assets/sim3_graph/window_1_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "sim3_graph_window_2", "group": "sim3_graph", "label": "Sim3 Graph window 2", "path": "./assets/sim3_graph/window_2_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "sim3_graph_window_3", "group": "sim3_graph", "label": "Sim3 Graph window 3", "path": "./assets/sim3_graph/window_3_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "sim3_graph_window_4", "group": "sim3_graph", "label": "Sim3 Graph window 4", "path": "./assets/sim3_graph/window_4_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "sim3_graph_window_5", "group": "sim3_graph", "label": "Sim3 Graph window 5", "path": "./assets/sim3_graph/window_5_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+
+    {"id": "two_node_submap_window_0", "group": "two_node_submap", "label": "2node submap window 0", "path": "./assets/two_node_submap/window_0_two_node_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "two_node_submap_window_1", "group": "two_node_submap", "label": "2node submap window 1", "path": "./assets/two_node_submap/window_1_two_node_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "two_node_submap_window_2", "group": "two_node_submap", "label": "2node submap window 2", "path": "./assets/two_node_submap/window_2_two_node_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "two_node_submap_window_3", "group": "two_node_submap", "label": "2node submap window 3", "path": "./assets/two_node_submap/window_3_two_node_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "two_node_submap_window_4", "group": "two_node_submap", "label": "2node submap window 4", "path": "./assets/two_node_submap/window_4_two_node_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "two_node_submap_window_5", "group": "two_node_submap", "label": "2node submap window 5", "path": "./assets/two_node_submap/window_5_two_node_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+
+    {"id": "structure_deformation_window_0", "group": "structure_deformation", "label": "structure deformation window 0", "path": "./assets/structure_deformation/window_0_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "structure_deformation_window_1", "group": "structure_deformation", "label": "structure deformation window 1", "path": "./assets/structure_deformation/window_1_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "structure_deformation_window_2", "group": "structure_deformation", "label": "structure deformation window 2", "path": "./assets/structure_deformation/window_2_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "structure_deformation_window_3", "group": "structure_deformation", "label": "structure deformation window 3", "path": "./assets/structure_deformation/window_3_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "structure_deformation_window_4", "group": "structure_deformation", "label": "structure deformation window 4", "path": "./assets/structure_deformation/window_4_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006},
+    {"id": "structure_deformation_window_5", "group": "structure_deformation", "label": "structure deformation window 5", "path": "./assets/structure_deformation/window_5_graph_optimized_rgb.ply", "visible": true, "pointSize": 0.006}
+  ]
+}
